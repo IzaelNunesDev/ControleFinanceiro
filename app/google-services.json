@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "360668060616",
+    "project_id": "controle-financeiro-8c6a4",
+    "storage_bucket": "controle-financeiro-8c6a4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:360668060616:android:438772319f66e91828fefd",
+        "android_client_info": {
+          "package_name": "com.igorgabriel.recyclerviewtransacoes"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBmhH6qVKEXh4xYyBLyBkAuXH1MS0V0QTM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
