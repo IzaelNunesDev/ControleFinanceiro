@@ -23,6 +23,7 @@
             android:orientation="vertical"
             android:padding="28dp">
 
+            <!--Titulo-->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -35,6 +36,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="40dp" />
 
+            <!--Descricao-->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -53,6 +55,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="20dp" />
 
+            <!-- Categoria -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -71,6 +74,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="20dp" />
 
+            <!-- Valor -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -87,14 +91,50 @@
 
             <View
                 android:layout_width="wrap_content"
+                android:layout_height="20dp" />
+
+            <!--Data-->
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:id="@+id/iv_mostrar_calendario"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="5dp"
+                    android:src="@drawable/calendario_icon" />
+
+                <TextView
+                    android:id="@+id/edit_data"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:alpha="0.7"
+                    android:text="Escolha uma data"
+                    android:textSize="16sp" />
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="wrap_content"
                 android:layout_height="80dp" />
 
-            <Button
-                android:id="@+id/btn_editar"
-                android:layout_width="match_parent"
+            <!-- Botao editar-->
+            <RelativeLayout
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="EDITAR" />
+                android:layout_marginBottom="30dp">
 
+                <Button
+                    android:id="@+id/btn_editar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginBottom="80dp"
+                    android:text="EDITAR" />
+            </RelativeLayout>
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 

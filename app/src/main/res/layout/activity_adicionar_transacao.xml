@@ -22,6 +22,7 @@
             android:orientation="vertical"
             android:padding="28dp">
 
+            <!--Titulo-->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -48,6 +49,7 @@
                 android:id="@+id/edit_add_descricao"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:hint="Adicione uma descrição"
                 android:inputType="text" />
 
             <View
@@ -67,6 +69,7 @@
             <EditText
                 android:id="@+id/edit_add_categoria"
                 android:layout_width="match_parent"
+                android:hint="Adicione uma categoria"
                 android:layout_height="wrap_content"
                 android:inputType="text" />
 
@@ -88,6 +91,7 @@
                 android:id="@+id/edit_add_valor"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:hint="Adicione um valor"
                 android:inputType="number|numberDecimal" />
 
             <View
@@ -101,7 +105,7 @@
                 android:layout_height="wrap_content">
 
                 <ImageView
-                    android:id="@+id/showDatePickerButton"
+                    android:id="@+id/iv_mostrar_calendario"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:src="@drawable/calendario_icon"
