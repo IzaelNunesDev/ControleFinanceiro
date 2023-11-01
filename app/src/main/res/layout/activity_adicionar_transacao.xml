@@ -1,85 +1,167 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     tools:context=".AdicionarTransacaoActivity">
 
-    <TextView
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="Adicionar Transação"
-        android:textSize="20sp" />
+        android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="-20dp"
+        android:padding="20dp"
+        app:cardCornerRadius="28dp">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Descricao:"
-        android:textSize="16sp" />
-
-    <EditText
-        android:id="@+id/edit_add_descricao"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:inputType="text" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Categoria:"
-        android:textSize="16sp" />
-
-    <EditText
-        android:id="@+id/edit_add_categoria"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:inputType="text" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Valor:"
-        android:textSize="16sp" />
-
-    <EditText
-        android:id="@+id/edit_add_valor"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:inputType="text" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Tipo da transação:"
-        android:textSize="16sp" />
-
-    <RadioGroup
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <RadioButton
-            android:id="@+id/radio_receita"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Receita" />
+            android:orientation="vertical"
+            android:padding="28dp">
 
-        <RadioButton
-            android:id="@+id/radio_despesa"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Despesa" />
-    </RadioGroup>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="Nova Transação"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
-    <Button
-        android:id="@+id/btn_adicionar_transacao"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="ADICIONAR" />
+            <View
+                android:layout_width="wrap_content"
+                android:layout_height="40dp" />
 
-</LinearLayout>
+            <!--Descricao-->
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:alpha="0.7"
+                android:text="Descricao:"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/edit_add_descricao"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text" />
+
+            <View
+                android:layout_width="wrap_content"
+                android:layout_height="20dp" />
+
+            <!--Categoria-->
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:alpha="0.7"
+                android:text="Categoria:"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/edit_add_categoria"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text" />
+
+            <View
+                android:layout_width="wrap_content"
+                android:layout_height="20dp" />
+
+            <!--Valor-->
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:alpha="0.7"
+                android:text="Valor:"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/edit_add_valor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number|numberDecimal" />
+
+            <View
+                android:layout_width="wrap_content"
+                android:layout_height="20dp" />
+
+            <!--Data-->
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:id="@+id/showDatePickerButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/calendario_icon"
+                    android:layout_marginRight="5dp"/>
+
+                <TextView
+                    android:id="@+id/text_data"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Escolha uma data"
+                    android:layout_marginTop="4dp"
+                    android:alpha="0.7"
+                    android:textSize="16sp" />
+
+            </LinearLayout>
+
+
+            <View
+                android:layout_width="wrap_content"
+                android:layout_height="20dp" />
+
+            <!--Tipo da transacao-->
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:alpha="0.7"
+                android:text="Tipo da transação:"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <RadioGroup
+                android:id="@+id/radio_tipo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <RadioButton
+                    android:id="@+id/radio_receita"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Receita" />
+
+                <RadioButton
+                    android:id="@+id/radio_despesa"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Despesa" />
+            </RadioGroup>
+
+            <View
+                android:layout_width="wrap_content"
+                android:layout_height="80dp" />
+
+            <Button
+                android:id="@+id/btn_adicionar_transacao"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="ADICIONAR" />
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+</RelativeLayout>
