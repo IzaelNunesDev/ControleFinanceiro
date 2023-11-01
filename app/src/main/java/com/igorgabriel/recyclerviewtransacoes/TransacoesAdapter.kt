@@ -1,5 +1,6 @@
 package com.igorgabriel.recyclerviewtransacoes
 
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView.Adapter
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 
 class TransacoesAdapter(
-    private val clique: (String, String, String, String) -> Unit
+    private val clique: (String, String, String, String, String) -> Unit
 ) : Adapter<TransacoesAdapter.TransacoesViewHolder>() {
 
     private var listaTransacoes = mutableListOf<Transacao>()
@@ -39,12 +40,19 @@ class TransacoesAdapter(
             textCategoria.text = transacao.categoria
             textValor.text = transacao.valor
 
+            if(transacao.tipo.equals("Receita")) {
+                textValor.setTextColor( Color.GREEN )
+            } else if(transacao.tipo.equals("Despesa")){
+                textValor.setTextColor( Color.RED )
+            }
+
             cardView.setOnClickListener{
                 clique(
                     transacao.id,
                     transacao.descricao,
                     transacao.categoria,
-                    transacao.valor
+                    transacao.valor,
+                    transacao.tipo
                 )
             }
         }

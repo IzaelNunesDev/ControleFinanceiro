@@ -32,6 +32,7 @@ class Editar_Transacoes_Activity : AppCompatActivity() {
             val descricao = bundle.getString("descricao")
             val categoria = bundle.getString("categoria")
             val valor = bundle.getString("valor")
+            val tipo = bundle.getString("tipo")
 
             binding.editDescricao.setText(descricao)
             binding.editCategoria.setText(categoria)
@@ -42,19 +43,20 @@ class Editar_Transacoes_Activity : AppCompatActivity() {
                 val categoria = binding.editCategoria.text.toString()
                 val valor = binding.editValor.text.toString()
 
-                editarTransacao(id, descricao, categoria, valor)
+                editarTransacao(id, descricao, categoria, valor, tipo)
             }
         }
 
     }
 
-    private fun editarTransacao(id: String, descricao: String, categoria: String, valor: String) {
+    private fun editarTransacao(id: String, descricao: String, categoria: String, valor: String, tipo: String?) {
         val idUsuarioLogado = autenticacao.currentUser?.uid
         if(idUsuarioLogado != null) {
             val dados = mapOf(
                 "descricao" to descricao,
                 "categoria" to categoria,
-                "valor" to valor
+                "valor" to valor,
+                "tipo" to tipo
             )
 
             val referenciaUsuario = bancoDados
