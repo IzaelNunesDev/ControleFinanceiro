@@ -8,6 +8,16 @@ import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView.Adapter
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+
+private val autenticacao by lazy {
+    FirebaseAuth.getInstance()
+}
+
+private val bancoDados by lazy {
+    FirebaseFirestore.getInstance()
+}
 
 class TransacoesAdapter(
     private val clique: (String, String, String, String, String) -> Unit
@@ -79,5 +89,27 @@ class TransacoesAdapter(
         val transacoes = listaTransacoes[position]
 
         holder.bind( transacoes )
+    }
+
+    fun removeAt(position: Int) {
+
+        removerItemBD(position)
+
+        listaTransacoes.removeAt(position)
+        notifyItemRemoved(position)
+    }
+
+    private fun removerItemBD(position: Int) {
+        val idUsuarioLogado = autenticacao.currentUser?.uid
+        if(idUsuarioLogado != null) {
+            val referenciaUsuario = bancoDados
+                .collection("usuarios/${idUsuarioLogado}/transacoes")
+                .document(listaTransacoes[position].id)
+
+            referenciaUsuario
+                .delete()
+                .addOnSuccessListener {}
+                .addOnFailureListener {}
+        }
     }
 }

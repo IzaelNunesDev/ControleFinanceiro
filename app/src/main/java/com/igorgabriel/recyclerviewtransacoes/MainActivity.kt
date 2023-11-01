@@ -3,7 +3,9 @@ package com.igorgabriel.recyclerviewtransacoes
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.igorgabriel.recyclerviewtransacoes.databinding.ActivityMainBinding
@@ -41,9 +43,9 @@ class MainActivity : AppCompatActivity() {
 
             startActivity(intent)
         }
-        //transacaoAdapter.atualizarListaDados(lista_transacoes)
-        binding.rvLista.adapter = transacaoAdapter
 
+
+        binding.rvLista.adapter = transacaoAdapter
         binding.rvLista.layoutManager = LinearLayoutManager(this)
 
         binding.btnAdicionar.setOnClickListener {
@@ -56,6 +58,29 @@ class MainActivity : AppCompatActivity() {
             autenticacao.signOut()
             finish()
         }
+
+        // Remover transacoes arrastando para os lados
+        val swipeHandler = object : ItemTouchHelper.SimpleCallback(0,
+                ItemTouchHelper.START or ItemTouchHelper.END
+            ){
+            // Comportamentos de arratar na tela
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                return false
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                transacaoAdapter.removeAt(viewHolder.adapterPosition)
+            }
+
+        }
+
+        val itemTouchHelper = ItemTouchHelper(swipeHandler)
+        itemTouchHelper.attachToRecyclerView(binding.rvLista)
+
     }
 
     private fun listarTransacoes() {
