@@ -29,7 +29,8 @@ class AdicionarTransacaoActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        binding.showDatePickerButton.setOnClickListener {
+        // TO DO: data iniciar com o dia atual
+        binding.ivMostrarCalendario.setOnClickListener {
             val calendario = Calendar.getInstance()
             val ano = calendario.get(Calendar.YEAR)
             val mes = calendario.get(Calendar.MONTH)
@@ -62,7 +63,7 @@ class AdicionarTransacaoActivity : AppCompatActivity() {
                     val data = binding.textData.text.toString()
 
                     if (!data.equals("Escolha uma data")){
-                        adicionarTransacao(descricao, categoria, valor, tipo)
+                        adicionarTransacao(descricao, categoria, valor, tipo, data)
                     }
                 }
             }
@@ -74,7 +75,8 @@ class AdicionarTransacaoActivity : AppCompatActivity() {
         descricao: String,
         categoria: String,
         valor: String,
-        tipo: String
+        tipo: String,
+        data: String
     ) {
         val idUsuarioLogado = autenticacao.currentUser?.uid
         if (idUsuarioLogado != null) {
@@ -82,7 +84,8 @@ class AdicionarTransacaoActivity : AppCompatActivity() {
                 "descricao" to descricao,
                 "categoria" to categoria,
                 "valor" to valor,
-                "tipo" to tipo
+                "tipo" to tipo,
+                "data" to data
             )
 
             val referenciaUsuario = bancoDados

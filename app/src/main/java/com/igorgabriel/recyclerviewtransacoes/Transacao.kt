@@ -5,5 +5,6 @@ data class Transacao(
     val descricao: String,
     val categoria: String,
     val valor: String,
-    val tipo: String
+    val tipo: String,
+    val data: String
 )

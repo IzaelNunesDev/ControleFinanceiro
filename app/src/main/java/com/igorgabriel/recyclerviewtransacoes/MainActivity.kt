@@ -32,7 +32,7 @@ class MainActivity : AppCompatActivity() {
 
         listarTransacoes()
 
-        transacaoAdapter = TransacoesAdapter{id, descricao, categoria, valor, tipo ->
+        transacaoAdapter = TransacoesAdapter{id, descricao, categoria, valor, tipo, data ->
             val intent = Intent(this, Editar_Transacoes_Activity::class.java)
 
             intent.putExtra("id", id)
@@ -40,6 +40,7 @@ class MainActivity : AppCompatActivity() {
             intent.putExtra("categoria", categoria)
             intent.putExtra("valor", valor)
             intent.putExtra("tipo", tipo)
+            intent.putExtra("data", data)
 
             startActivity(intent)
         }
@@ -101,8 +102,9 @@ class MainActivity : AppCompatActivity() {
                         val categoria = dados["categoria"].toString()
                         val valor = dados["valor"].toString()
                         val tipo = dados["tipo"].toString()
+                        val data = dados["data"].toString()
 
-                        lista_transacoes.add(0, Transacao(documentId, descricao, categoria, valor, tipo))
+                        lista_transacoes.add(0, Transacao(documentId, descricao, categoria, valor, tipo, data))
                         transacaoAdapter.atualizarListaDados(lista_transacoes)
                     }
                 }

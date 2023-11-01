@@ -20,7 +20,7 @@ private val bancoDados by lazy {
 }
 
 class TransacoesAdapter(
-    private val clique: (String, String, String, String, String) -> Unit
+    private val clique: (String, String, String, String, String, String) -> Unit
 ) : Adapter<TransacoesAdapter.TransacoesViewHolder>() {
 
     private var listaTransacoes = mutableListOf<Transacao>()
@@ -42,6 +42,7 @@ class TransacoesAdapter(
         val textDescricao: TextView = itemView.findViewById( R.id.text_cardview_descricao )
         val textCategoria: TextView = itemView.findViewById( R.id.text_cardview_categoria )
         val textValor: TextView = itemView.findViewById( R.id.text_cardview_valor )
+        val textData: TextView = itemView.findViewById( R.id.text_cardview_data )
 
         val cardView: CardView = itemView.findViewById( R.id.card_view_layout )
 
@@ -49,6 +50,7 @@ class TransacoesAdapter(
             textDescricao.text = transacao.descricao
             textCategoria.text = transacao.categoria
             textValor.text = transacao.valor
+            textData.text = transacao.data
 
             if(transacao.tipo.equals("Receita")) {
                 textValor.setTextColor( Color.GREEN )
@@ -62,7 +64,8 @@ class TransacoesAdapter(
                     transacao.descricao,
                     transacao.categoria,
                     transacao.valor,
-                    transacao.tipo
+                    transacao.tipo,
+                    transacao.data
                 )
             }
         }
