@@ -60,6 +60,12 @@ class MainActivity : AppCompatActivity() {
             finish()
         }
 
+        binding.btnPrincipal.setOnClickListener {
+            startActivity(
+                Intent(this, TelaPrincipalActivity::class.java)
+            )
+        }
+
         // Remover transacoes arrastando para os lados
         val swipeHandler = object : ItemTouchHelper.SimpleCallback(0,
                 ItemTouchHelper.START or ItemTouchHelper.END
