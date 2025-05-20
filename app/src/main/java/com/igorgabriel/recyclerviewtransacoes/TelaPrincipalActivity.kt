@@ -2,6 +2,7 @@ package com.igorgabriel.recyclerviewtransacoes
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.igorgabriel.recyclerviewtransacoes.databinding.ActivityTelaPrincipalBinding
@@ -9,7 +10,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import java.text.NumberFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 class TelaPrincipalActivity : AppCompatActivity() {
 
@@ -31,39 +37,23 @@ class TelaPrincipalActivity : AppCompatActivity() {
 
         CoroutineScope(Dispatchers.IO).launch {
 
-            getSaldo()
+            val receitasDeferred = async { filtrarReceitas() }
+            val despesasDeferred = async { filtrarDespesas() }
+            val gastosHojeDeferred = async { getGastosHoje() }
 
-            val receitas = async { filtrarReceitas() }
-            val despesas = async { filtrarDespesas() }
-
-            val resultadoReceitas = receitas.await()
-            val resultadoDespesas = despesas.await()
+            val resultadoReceitas = receitasDeferred.await()
+            val resultadoDespesas = despesasDeferred.await()
+            val resultadoGastosHoje = gastosHojeDeferred.await()
 
             val balanco = resultadoReceitas - resultadoDespesas
 
             withContext(Dispatchers.Main) {
-                binding.textBalanco.text = balanco.toString()
-            }
-        }
-
-    }
-
-    private suspend fun getSaldo() {
-        val idUsuarioLogado = autenticacao.currentUser?.uid
-        if(idUsuarioLogado != null) {
-            val refUserSaldo = bancoDados
-                .collection("usuarios/${idUsuarioLogado}")
-
-            refUserSaldo.addSnapshotListener { querySnapshot, error ->
-                val listaDocuments = querySnapshot?.documents
-
-                listaDocuments?.forEach{documentSnapshot ->
-                    val dados = documentSnapshot?.data
-                    if(dados != null){
-                        val saldo = dados["saldo"].toString()
-                        binding.textSaldo.text = saldo
-                    }
-                }
+                val currencyFormat = NumberFormat.getCurrencyInstance(Locale("pt", "BR"))
+                binding.textSaldo.text = currencyFormat.format(balanco) // Update Saldo Total
+                binding.textBlReceita.text = currencyFormat.format(resultadoReceitas)
+                binding.textBlDespesa.text = currencyFormat.format(resultadoDespesas)
+                binding.textGastosHoje.text = currencyFormat.format(resultadoGastosHoje)
+                binding.textBalanco.text = currencyFormat.format(balanco)
             }
         }
     }
@@ -73,27 +63,22 @@ class TelaPrincipalActivity : AppCompatActivity() {
         var valorReceita = 0.0
 
         if (idUsuarioLogado != null) {
-            val refUserReceita = bancoDados
-                .collection("usuarios/${idUsuarioLogado}/transacoes")
-                .whereEqualTo("tipo", "Receita")
+            try {
+                val querySnapshot = bancoDados
+                    .collection("usuarios/${idUsuarioLogado}/transacoes")
+                    .whereEqualTo("tipo", "Receita")
+                    .get()
+                    .await()
 
-            refUserReceita.addSnapshotListener { querySnapshot, error ->
-                val listaDocuments = querySnapshot?.documents
-                //var listaResultado = 0.0
-
-                listaDocuments?.forEach { documentSnapshot ->
-                    val dados = documentSnapshot?.data
-                    if (dados != null) {
-                        val valor = dados["valor"].toString()
-
-                        valorReceita += valor.toDouble()
-                    }
+                for (documentSnapshot in querySnapshot.documents) {
+                    val valor = documentSnapshot.getDouble("valor") ?: 0.0
+                    valorReceita += valor
                 }
-
-                binding.textBlReceita.text = valorReceita.toString()
+            } catch (e: Exception) {
+                // Handle exceptions, e.g., log error
+                // For now, we'll let it return 0.0 on error
             }
         }
-
         return valorReceita
     }
 
@@ -102,32 +87,57 @@ class TelaPrincipalActivity : AppCompatActivity() {
         var valorDespesa = 0.0
 
         if (idUsuarioLogado != null) {
+            try {
+                val querySnapshot = bancoDados
+                    .collection("usuarios/${idUsuarioLogado}/transacoes")
+                    .whereEqualTo("tipo", "Despesa")
+                    .get()
+                    .await()
 
-            // Filtra as despesas
-            val refUserDespesa = bancoDados
-                .collection("usuarios/${idUsuarioLogado}/transacoes")
-                .whereEqualTo("tipo", "Despesa")
-
-            refUserDespesa.addSnapshotListener { querySnapshot, error ->
-                val listaDocuments = querySnapshot?.documents
-                //var listaResultado = 0.0
-
-                listaDocuments?.forEach { documentSnapshot ->
-                    val dados = documentSnapshot?.data
-                    if (dados != null) {
-                        val valor = dados["valor"].toString()
-
-                        valorDespesa += valor.toDouble()
-                    }
+                for (documentSnapshot in querySnapshot.documents) {
+                    val valor = documentSnapshot.getDouble("valor") ?: 0.0
+                    valorDespesa += valor
                 }
-
-                binding.textBlDespesa.text = valorDespesa.toString()
+            } catch (e: Exception) {
+                // Handle exceptions
+                // For now, we'll let it return 0.0 on error
             }
         }
-
         return valorDespesa
     }
 
+    private suspend fun getGastosHoje(): Double {
+        val idUsuarioLogado = autenticacao.currentUser?.uid
+        var valorGastosHoje = 0.0
+
+        if (idUsuarioLogado != null) {
+            val calendar = Calendar.getInstance()
+            calendar.set(Calendar.HOUR_OF_DAY, 0); calendar.set(Calendar.MINUTE, 0); calendar.set(Calendar.SECOND, 0); calendar.set(Calendar.MILLISECOND, 0)
+            val inicioDia = Timestamp(calendar.time)
+
+            calendar.set(Calendar.HOUR_OF_DAY, 23); calendar.set(Calendar.MINUTE, 59); calendar.set(Calendar.SECOND, 59); calendar.set(Calendar.MILLISECOND, 999)
+            val fimDia = Timestamp(calendar.time)
+
+            try {
+                val querySnapshot = bancoDados
+                    .collection("usuarios/${idUsuarioLogado}/transacoes")
+                    .whereEqualTo("tipo", "Despesa")
+                    .whereGreaterThanOrEqualTo("data", inicioDia)
+                    .whereLessThanOrEqualTo("data", fimDia)
+                    .get()
+                    .await()
+
+                for (documentSnapshot in querySnapshot.documents) {
+                    val valor = documentSnapshot.getDouble("valor") ?: 0.0
+                    valorGastosHoje += valor
+                }
+            } catch (e: Exception) {
+                // Handle exceptions
+                // For now, we'll let it return 0.0 on error
+            }
+        }
+        return valorGastosHoje
+    }
 
     /* private suspend fun calcularBalaco() {
 
