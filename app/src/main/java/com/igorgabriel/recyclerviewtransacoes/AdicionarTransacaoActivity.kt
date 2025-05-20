@@ -5,11 +5,14 @@ import android.os.Bundle
 import android.widget.RadioButton
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.igorgabriel.recyclerviewtransacoes.databinding.ActivityAdicionarTransacaoBinding
 import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 class AdicionarTransacaoActivity : AppCompatActivity() {
 
@@ -25,11 +28,16 @@ class AdicionarTransacaoActivity : AppCompatActivity() {
         FirebaseFirestore.getInstance()
     }
 
+    private var selectedTimestamp: Timestamp? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        // TO DO: data iniciar com o dia atual
+        // Inicializar data com o dia atual
+        selectedTimestamp = Timestamp(Date())
+        binding.textData.text = SimpleDateFormat("EEE, dd MMM yyyy", Locale.getDefault()).format(Date())
+
         binding.ivMostrarCalendario.setOnClickListener {
             val calendario = Calendar.getInstance()
             val ano = calendario.get(Calendar.YEAR)
@@ -41,8 +49,8 @@ class AdicionarTransacaoActivity : AppCompatActivity() {
                 { _, anoSelecionado, mesSelecionado, diaSelecionado ->
                     val dataSelecionada = Calendar.getInstance()
                     dataSelecionada.set(anoSelecionado, mesSelecionado, diaSelecionado)
-
-                    binding.textData.text = SimpleDateFormat("EEE, dd MMM yyyy").format(dataSelecionada.time)
+                    selectedTimestamp = Timestamp(dataSelecionada.time)
+                    binding.textData.text = SimpleDateFormat("EEE, dd MMM yyyy", Locale.getDefault()).format(dataSelecionada.time)
                 },
                 ano,
                 mes,
@@ -58,25 +66,31 @@ class AdicionarTransacaoActivity : AppCompatActivity() {
                 binding.btnAdicionarTransacao.setOnClickListener {
                     val descricao = binding.editAddDescricao.text.toString()
                     val categoria = binding.editAddCategoria.text.toString()
-                    val valor = binding.editAddValor.text.toString()
-                    var tipo = opcaoSelecionada.text.toString()
-                    val data = binding.textData.text.toString()
+                    val valorString = binding.editAddValor.text.toString()
+                    val tipo = opcaoSelecionada.text.toString()
 
-                    if (!data.equals("Escolha uma data")){
-                        adicionarTransacao(descricao, categoria, valor, tipo, data)
+                    val valor = valorString.toDoubleOrNull()
+                    if (valor == null) {
+                        exibirMensagem("Valor inválido. Por favor, insira um número.")
+                        return@setOnClickListener
+                    }
+
+                    if (selectedTimestamp != null){
+                        adicionarTransacao(descricao, categoria, valor, tipo, selectedTimestamp!!)
+                    } else {
+                        exibirMensagem("Por favor, escolha uma data.")
                     }
                 }
             }
-
         }
     }
 
     private fun adicionarTransacao(
         descricao: String,
         categoria: String,
-        valor: String,
+        valor: Double,
         tipo: String,
-        data: String
+        data: Timestamp
     ) {
         val idUsuarioLogado = autenticacao.currentUser?.uid
         if (idUsuarioLogado != null) {

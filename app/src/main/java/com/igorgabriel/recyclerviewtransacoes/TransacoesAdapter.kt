@@ -6,28 +6,44 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.cardview.widget.CardView
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView.Adapter
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-
-private val autenticacao by lazy {
-    FirebaseAuth.getInstance()
-}
-
-private val bancoDados by lazy {
-    FirebaseFirestore.getInstance()
-}
+import com.google.firebase.Timestamp
+import java.text.NumberFormat
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class TransacoesAdapter(
-    private val clique: (String, String, String, String, String, String) -> Unit
+    private val clique: (String, String, String, Double, String, Timestamp) -> Unit,
+    private val onItemDelete: (transacaoId: String) -> Unit
 ) : Adapter<TransacoesAdapter.TransacoesViewHolder>() {
 
     private var listaTransacoes = mutableListOf<Transacao>()
 
-    fun atualizarListaDados(lista: MutableList<Transacao> ) {
-        listaTransacoes = lista
-        notifyDataSetChanged()
+    fun atualizarListaDados(novaLista: MutableList<Transacao>) {
+        val diffCallback = TransacaoDiffCallback(listaTransacoes, novaLista)
+        val diffResult = DiffUtil.calculateDiff(diffCallback)
+        listaTransacoes.clear()
+        listaTransacoes.addAll(novaLista)
+        diffResult.dispatchUpdatesTo(this)
+    }
+
+    private inner class TransacaoDiffCallback(
+        private val oldList: List<Transacao>,
+        private val newList: List<Transacao>
+    ) : DiffUtil.Callback() {
+
+        override fun getOldListSize(): Int = oldList.size
+        override fun getNewListSize(): Int = newList.size
+
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldList[oldItemPosition].id == newList[newItemPosition].id
+        }
+
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldList[oldItemPosition] == newList[newItemPosition]
+        }
     }
 
     /*fun adicionar(descricao: String, categoria: String, valor: String){
@@ -49,8 +65,10 @@ class TransacoesAdapter(
         fun bind( transacao: Transacao ){
             textDescricao.text = transacao.descricao
             textCategoria.text = transacao.categoria
-            textValor.text = transacao.valor
-            textData.text = transacao.data
+            // Formatar valor como moeda
+            textValor.text = NumberFormat.getCurrencyInstance(Locale("pt", "BR")).format(transacao.valor)
+            // Formatar data
+            textData.text = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(transacao.data.toDate())
 
             if(transacao.tipo.equals("Receita")) {
                 textValor.setTextColor( Color.GREEN )
@@ -63,9 +81,9 @@ class TransacoesAdapter(
                     transacao.id,
                     transacao.descricao,
                     transacao.categoria,
-                    transacao.valor,
+                    transacao.valor, // Pass Double
                     transacao.tipo,
-                    transacao.data
+                    transacao.data // Pass Timestamp
                 )
             }
         }
@@ -95,24 +113,10 @@ class TransacoesAdapter(
     }
 
     fun removeAt(position: Int) {
-
-        removerItemBD(position)
-
-        listaTransacoes.removeAt(position)
-        notifyItemRemoved(position)
-    }
-
-    private fun removerItemBD(position: Int) {
-        val idUsuarioLogado = autenticacao.currentUser?.uid
-        if(idUsuarioLogado != null) {
-            val referenciaUsuario = bancoDados
-                .collection("usuarios/${idUsuarioLogado}/transacoes")
-                .document(listaTransacoes[position].id)
-
-            referenciaUsuario
-                .delete()
-                .addOnSuccessListener {}
-                .addOnFailureListener {}
+        if (position >= 0 && position < listaTransacoes.size) {
+            val transacaoParaRemover = listaTransacoes[position]
+            onItemDelete(transacaoParaRemover.id)
+            // List update will be handled by DiffUtil via Firestore snapshot listener
         }
     }
 }

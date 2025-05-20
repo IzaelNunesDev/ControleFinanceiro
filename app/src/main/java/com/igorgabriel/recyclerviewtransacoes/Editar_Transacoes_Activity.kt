@@ -4,11 +4,14 @@ import android.app.DatePickerDialog
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.igorgabriel.recyclerviewtransacoes.databinding.ActivityEditarTransacoesBinding
 import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 class Editar_Transacoes_Activity : AppCompatActivity() {
 
@@ -24,6 +27,8 @@ class Editar_Transacoes_Activity : AppCompatActivity() {
         FirebaseFirestore.getInstance()
     }
 
+    private var selectedTimestamp: Timestamp? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
@@ -34,27 +39,43 @@ class Editar_Transacoes_Activity : AppCompatActivity() {
             val id = bundle.getString("id").toString()
             val descricao = bundle.getString("descricao")
             val categoria = bundle.getString("categoria")
-            val valor = bundle.getString("valor")
+            val valor = bundle.getDouble("valor") // Retrieve as Double
             val tipo = bundle.getString("tipo")
-            val data = bundle.getString("data")
+            val dataMillis = bundle.getLong("data") // Retrieve as Long
+
+            selectedTimestamp = Timestamp(Date(dataMillis)) // Convert Long to Timestamp
 
             binding.editDescricao.setText(descricao)
             binding.editCategoria.setText(categoria)
-            binding.editValor.setText(valor)
-            binding.editData.setText(data)
+            binding.editValor.setText(valor.toString()) // Consider NumberFormat for locale-specific formatting
+            binding.editData.text = SimpleDateFormat("EEE, dd MMM yyyy", Locale.getDefault()).format(selectedTimestamp!!.toDate())
+
 
             binding.btnEditar.setOnClickListener {
-                val descricao = binding.editDescricao.text.toString()
-                val categoria = binding.editCategoria.text.toString()
-                val valor = binding.editValor.text.toString()
-                val data = binding.editData.text.toString()
+                val updatedDescricao = binding.editDescricao.text.toString()
+                val updatedCategoria = binding.editCategoria.text.toString()
+                val valorString = binding.editValor.text.toString()
 
-                editarTransacao(id, descricao, categoria, valor, tipo, data)
+                val updatedValor = valorString.toDoubleOrNull()
+                if (updatedValor == null) {
+                    exibirMensagem("Valor inválido. Por favor, insira um número.")
+                    return@setOnClickListener
+                }
+
+                if (selectedTimestamp == null) {
+                    exibirMensagem("Data inválida. Por favor, selecione uma data.")
+                    return@setOnClickListener
+                }
+
+                editarTransacao(id, updatedDescricao, updatedCategoria, updatedValor, tipo, selectedTimestamp!!)
             }
         }
 
         binding.ivMostrarCalendario.setOnClickListener {
             val calendario = Calendar.getInstance()
+            selectedTimestamp?.toDate()?.let {
+                calendario.time = it
+            }
             val ano = calendario.get(Calendar.YEAR)
             val mes = calendario.get(Calendar.MONTH)
             val dia = calendario.get(Calendar.DAY_OF_MONTH)
@@ -64,8 +85,8 @@ class Editar_Transacoes_Activity : AppCompatActivity() {
                 { _, anoSelecionado, mesSelecionado, diaSelecionado ->
                     val dataSelecionada = Calendar.getInstance()
                     dataSelecionada.set(anoSelecionado, mesSelecionado, diaSelecionado)
-
-                    binding.editData.text = SimpleDateFormat("EEE, dd MMM yyyy").format(dataSelecionada.time)
+                    selectedTimestamp = Timestamp(dataSelecionada.time)
+                    binding.editData.text = SimpleDateFormat("EEE, dd MMM yyyy", Locale.getDefault()).format(dataSelecionada.time)
                 },
                 ano,
                 mes,
@@ -73,18 +94,17 @@ class Editar_Transacoes_Activity : AppCompatActivity() {
             )
             datePickerDialog.show()
         }
-
     }
 
-    private fun editarTransacao(id: String, descricao: String, categoria: String, valor: String, tipo: String?, data: String) {
+    private fun editarTransacao(id: String, descricao: String, categoria: String, valor: Double, tipo: String?, data: Timestamp) {
         val idUsuarioLogado = autenticacao.currentUser?.uid
         if(idUsuarioLogado != null) {
             val dados = mapOf(
                 "descricao" to descricao,
                 "categoria" to categoria,
-                "valor" to valor,
+                "valor" to valor, // Use Double
                 "tipo" to tipo,
-                "data" to data
+                "data" to data // Use Timestamp
             )
 
             val referenciaUsuario = bancoDados
